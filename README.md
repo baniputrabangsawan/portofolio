@@ -1,6 +1,6 @@
 # AI Automation & Full Stack Portfolio
 
-A production-ready personal portfolio built with TanStack Start, React Three Fiber, GSAP, Lenis, Tailwind CSS, and strict TypeScript.
+A static frontend-only personal portfolio built with TanStack Router, Vite, React Three Fiber, GSAP, Lenis, Tailwind CSS, and strict TypeScript. There is no admin dashboard, CMS, database, SSR server, or backend endpoint.
 
 ## Run locally
 
@@ -24,19 +24,15 @@ pnpm start
 - Experience: `src/data/experience.ts`
 - Design tokens: `tailwind.config.ts` and `src/styles/globals.css`
 
-The bundled portfolio entries are representative placeholders. Replace them with verified work, metrics, and links before publishing.
+The bundled portfolio entries are representative placeholders. Replace them with verified work, metrics, and links before publishing. All content is edited directly in code—there is no admin interface.
 
 ## Contact delivery
 
-Copy `.env.example` to `.env` and add server-only Resend credentials:
+The contact form validates fields in the browser, then opens the visitor's default email application using `mailto:`. It does not send data to a server and requires no API key or environment variables. Change the destination email in `src/lib/constants.ts`.
 
-```env
-RESEND_API_KEY=re_xxxxxxxxx
-CONTACT_TO_EMAIL=you@example.com
-CONTACT_FROM_EMAIL=Portfolio <onboarding@resend.dev>
-```
+## Deployment
 
-Never prefix these variables with `VITE_` or `PUBLIC_`. The endpoint includes runtime validation, sanitization, a honeypot, same-origin checks, and a basic in-memory rate limit. For a multi-instance/serverless deployment, replace the in-memory limiter with a shared store such as Redis or the platform's rate-limit service.
+Deploy the generated `dist/` directory to any static host. No Node.js server, database, serverless function, or admin application is required.
 
 ## Quality checks
 

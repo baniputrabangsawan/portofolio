@@ -25,15 +25,3 @@ export interface Experience {
   company: string
   summary: string
 }
-
-export interface ContactPayload {
-  name: string
-  email: string
-  message: string
-  company?: string
-}
-
-export interface ContactResponse {
-  ok: boolean
-  message: string
-}
