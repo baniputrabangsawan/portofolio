@@ -1,9 +1,10 @@
 import { lazy, Suspense, useRef, useState, type FormEvent } from 'react'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, LoaderCircle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { siteConfig } from '@/lib/constants'
 import { contactSchema, type ContactInput } from '@/lib/contact-schema'
+import type { ContactResponse } from '@/types'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
 
@@ -13,12 +14,15 @@ type FormErrors = Partial<Record<keyof ContactInput, string>>
 
 export function Contact() {
   const [errors, setErrors] = useState<FormErrors>({})
+  const [status, setStatus] = useState<ContactResponse | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const firstErrorRef = useRef<HTMLInputElement>(null)
   const isDesktop = useMediaQuery('(min-width: 1024px)')
   const reducedMotion = useReducedMotion()
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setStatus(null)
     const form = new FormData(event.currentTarget)
     const payload = Object.fromEntries(form.entries())
     const parsed = contactSchema.safeParse(payload)
@@ -32,9 +36,17 @@ export function Contact() {
     }
 
     setErrors({})
-    const subject = encodeURIComponent(`Project inquiry from ${parsed.data.name}`)
-    const body = encodeURIComponent(`Name: ${parsed.data.name}\nEmail: ${parsed.data.email}\n\n${parsed.data.message}`)
-    window.location.href = `mailto:${siteConfig.email}?subject=${subject}&body=${body}`
+    setSubmitting(true)
+    try {
+      const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(parsed.data) })
+      const result = await response.json() as ContactResponse
+      setStatus(result)
+      if (response.ok) event.currentTarget.reset()
+    } catch {
+      setStatus({ ok: false, message: 'Network error. Please email me directly instead.' })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -52,6 +64,7 @@ export function Contact() {
           </div>
         </div>
         <form className="col-span-12 space-y-6 lg:col-span-5 lg:col-start-8" onSubmit={handleSubmit} noValidate>
+          <div className="hidden" aria-hidden="true"><label htmlFor="company">Company</label><input id="company" name="company" tabIndex={-1} autoComplete="off" /></div>
           <div className="form-field">
             <label htmlFor="name">Your name</label>
             <input ref={firstErrorRef} id="name" name="name" autoComplete="name" placeholder="Jane Doe…" aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'name-error' : undefined} />
@@ -67,10 +80,10 @@ export function Contact() {
             <textarea id="message" name="message" rows={4} placeholder="A short brief, challenge, or idea…" aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? 'message-error' : undefined} />
             {errors.message && <span id="message-error" role="alert">{errors.message}</span>}
           </div>
-          <Button type="submit" showArrow className="w-full justify-between">
-            Compose project email
+          <Button type="submit" disabled={submitting} showArrow={!submitting} className="w-full justify-between disabled:cursor-wait disabled:opacity-70">
+            {submitting ? <span className="inline-flex items-center gap-2"><LoaderCircle className="animate-spin" size={16} /> Sending</span> : 'Send project brief'}
           </Button>
-          <p className="text-xs leading-relaxed text-ink-600">This frontend-only form opens your default email application. No message or personal data is stored by this website.</p>
+          {status && <p role="status" className={status.ok ? 'text-sm text-ink-800' : 'text-sm text-error'}>{status.message}</p>}
         </form>
       </div>
     </Section>
