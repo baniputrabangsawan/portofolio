@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-fast: 140ms;
+  --duration-default: 200ms;
+  --duration-slow: 600ms;
+  --paper: #f4f3ed;
+  --ink: #10110f;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--paper); }
+body { margin: 0; min-width: 320px; overflow-x: hidden; background: var(--paper); color: var(--ink); font-family: Inter, "Helvetica Neue", Arial, sans-serif; }
+::selection { background: #10110f; color: #c7ff3d; }
+a { color: inherit; text-decoration: none; }
+button, a, input, textarea { -webkit-tap-highlight-color: rgb(16 17 15 / 0.1); }
+button, input, textarea { font: inherit; }
+button, a { touch-action: manipulation; }
+canvas { display: block; }
+
+@layer components {
+  .button-base {
+    @apply inline-flex min-h-12 items-center justify-center gap-3 rounded-full px-5 font-mono text-caption font-semibold uppercase;
+    transition: background-color var(--duration-fast) ease, border-color var(--duration-fast) ease, color var(--duration-fast) ease, transform 160ms var(--ease-out);
+  }
+  .button-base:active { transform: scale(0.97); }
+  .button-base:focus-visible, .nav-link:focus-visible, .button-icon:focus-visible, a:focus-visible { outline: 2px solid #769d12; outline-offset: 3px; }
+  .button-icon { @apply grid h-10 w-10 place-items-center rounded-full border border-ink-950/25; }
+  .nav-link { @apply relative font-mono text-caption uppercase text-ink-800; }
+  .nav-link::after { content: ''; position: absolute; inset: auto 0 -5px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform var(--duration-default) var(--ease-in-out); }
+  .form-field { @apply relative; }
+  .form-field label { @apply mb-2 block font-mono text-caption uppercase; }
+  .form-field input, .form-field textarea { @apply w-full resize-none rounded-none border-0 border-b border-ink-950/40 bg-transparent px-0 py-3 text-ink-950 placeholder:text-ink-600/70 focus:border-ink-950 focus:ring-0; transition: border-color var(--duration-fast) ease; }
+  .form-field input[aria-invalid="true"], .form-field textarea[aria-invalid="true"] { @apply border-error; }
+  .form-field [role="alert"] { @apply mt-2 block text-xs text-error; }
+}
+
+.skip-link { position: fixed; left: 1rem; top: -4rem; z-index: 100; background: #10110f; color: #f4f3ed; padding: 0.75rem 1rem; transition: transform 160ms var(--ease-out); }
+.skip-link:focus { top: 1rem; }
+.loader-line { animation: loader 1.2s var(--ease-in-out) infinite alternate; transform-origin: left; }
+.hero-fallback { position: absolute; left: 50%; top: 50%; width: min(58vw, 31rem); aspect-ratio: 1; transform: translate(-50%, -50%); }
+.hero-fallback span { position: absolute; inset: 16%; border: 1px solid rgb(16 17 15 / 0.45); transform: rotate(45deg); }
+.hero-fallback span:nth-child(2) { inset: 27%; transform: rotate(22deg); border-width: 3px; }
+.hero-fallback span:nth-child(3) { inset: 40%; background: #10110f; border: 0; transform: rotate(45deg); }
+.project-visual { transition: transform 700ms var(--ease-out); }
+
+@keyframes loader { from { transform: translateX(-30%) scaleX(0.45); } to { transform: translateX(130%) scaleX(1); } }
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
+  .project-grid:hover .project-visual { transform: scale(0.985); }
+  .skill-row:hover h3 { color: #c7ff3d; }
+}
+
+@media (max-width: 767px) {
+  .hero-fallback { width: min(85vw, 26rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.2s !important; animation-iteration-count: 1 !important; transition-duration: 0.2s !important; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  [data-parallax] { transform: none !important; }
+}
